@@ -222,7 +222,7 @@ func callGemini(model, userPrompt string) (string, error) {
 		return "", fmt.Errorf("GEMINI_API_KEY not set")
 	}
 	if model == "" {
-		model = "gemini-2.0-flash"
+		model = "gemini-2.5-flash"
 	}
 
 	body := map[string]any{

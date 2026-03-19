@@ -45,7 +45,7 @@ Set one of these environment variables:
 |----------|-------------|---------------|
 | Claude | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6-20250514` |
 | OpenAI | `OPENAI_API_KEY` | `gpt-4o-mini` |
-| Gemini | `GEMINI_API_KEY` | `gemini-2.0-flash` |
+| Gemini | `GEMINI_API_KEY` | `gemini-2.5-flash` |
 | Ollama | (none needed) | `llama3.2` |
 
 The provider is auto-detected from your env vars. Claude is preferred if both keys are set.
