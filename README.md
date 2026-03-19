@@ -2,26 +2,39 @@
 
 AI-powered commit message generator. Reads your `git diff`, generates a conventional commit message, and commits — all in one command.
 
-Supports **OpenAI**, **Claude**, and **Ollama** (local). Single binary, zero dependencies.
+Supports **OpenAI**, **Claude**, **Gemini**, and **Ollama** (local). Zero dependencies.
+
+Available in **Go** (single binary) and **Node.js** — pick your flavor.
 
 ## Install
 
-### Go install (recommended)
+### Go
 
 ```bash
 go install github.com/artty335/commitly@latest
 ```
 
-### Download binary
+Or download a prebuilt binary from [Releases](https://github.com/artty335/commitly/releases).
 
-Grab the latest binary from [Releases](https://github.com/artty335/commitly/releases) — available for Linux, macOS, and Windows.
+### Node.js
+
+```bash
+npx git-ac
+# or install globally
+npm install -g git-ac
+```
 
 ### Build from source
 
 ```bash
 git clone https://github.com/artty335/commitly.git
 cd commitly
+
+# Go
 go build -o git-ac .
+
+# Node.js — just run directly
+node git-ac.mjs
 ```
 
 ## Setup
@@ -32,6 +45,7 @@ Set one of these environment variables:
 |----------|-------------|---------------|
 | Claude | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6-20250514` |
 | OpenAI | `OPENAI_API_KEY` | `gpt-4o-mini` |
+| Gemini | `GEMINI_API_KEY` | `gemini-2.0-flash` |
 | Ollama | (none needed) | `llama3.2` |
 
 The provider is auto-detected from your env vars. Claude is preferred if both keys are set.
@@ -48,6 +62,7 @@ git-ac -y
 # Choose a provider
 git-ac -p ollama
 git-ac -p openai
+git-ac -p gemini
 
 # Use a specific model
 git-ac -p claude -m claude-haiku-4-5-20251001

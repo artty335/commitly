@@ -26,7 +26,7 @@ Rules:
 const maxDiffChars = 8000
 
 func main() {
-	provider := flag.String("p", "", "AI provider: openai, claude, ollama (auto-detected)")
+	provider := flag.String("p", "", "AI provider: openai, claude, gemini, ollama (auto-detected)")
 	model := flag.String("m", "", "Model name override")
 	yes := flag.Bool("y", false, "Skip confirmation and commit immediately")
 	flag.Usage = func() {
@@ -111,6 +111,9 @@ func detectProvider() string {
 	if os.Getenv("OPENAI_API_KEY") != "" {
 		return "openai"
 	}
+	if os.Getenv("GEMINI_API_KEY") != "" {
+		return "gemini"
+	}
 	return "ollama"
 }
 
@@ -122,6 +125,8 @@ func generate(provider, model, diff string) (string, error) {
 		return callOpenAI(model, userPrompt)
 	case "claude":
 		return callClaude(model, userPrompt)
+	case "gemini":
+		return callGemini(model, userPrompt)
 	case "ollama":
 		return callOllama(model, userPrompt)
 	default:
@@ -207,6 +212,57 @@ func callClaude(model, userPrompt string) (string, error) {
 		return "", fmt.Errorf("no response from Claude")
 	}
 	return strings.TrimSpace(resp.Content[0].Text), nil
+}
+
+// --- Gemini ---
+
+func callGemini(model, userPrompt string) (string, error) {
+	key := os.Getenv("GEMINI_API_KEY")
+	if key == "" {
+		return "", fmt.Errorf("GEMINI_API_KEY not set")
+	}
+	if model == "" {
+		model = "gemini-2.0-flash"
+	}
+
+	body := map[string]any{
+		"system_instruction": map[string]any{
+			"parts": []map[string]string{
+				{"text": systemPrompt},
+			},
+		},
+		"contents": []map[string]any{
+			{
+				"parts": []map[string]string{
+					{"text": userPrompt},
+				},
+			},
+		},
+		"generationConfig": map[string]any{
+			"temperature":     0.3,
+			"maxOutputTokens": 256,
+		},
+	}
+
+	var resp struct {
+		Candidates []struct {
+			Content struct {
+				Parts []struct {
+					Text string `json:"text"`
+				} `json:"parts"`
+			} `json:"content"`
+		} `json:"candidates"`
+	}
+
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", model, key)
+	if err := postJSON(url, nil, body, &resp); err != nil {
+		return "", err
+	}
+
+	if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
+		return "", fmt.Errorf("no response from Gemini")
+	}
+	return strings.TrimSpace(resp.Candidates[0].Content.Parts[0].Text), nil
 }
 
 // --- Ollama ---
